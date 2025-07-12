@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d6efd">
+  <title>Prayer Tracker PWA</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <script>
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById("installBtn");
+      btn.style.display = "block";
+      btn.addEventListener("click", () => {
+        btn.style.display = "none";
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(choice => {
+          if (choice.outcome === 'accepted') {
+            console.log('User accepted A2HS prompt');
+          } else {
+            console.log('User dismissed A2HS prompt');
+          }
+          deferredPrompt = null;
+        });
+      });
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(() => {
+          console.log("Service Worker Registered");
+        });
+      });
+    }
+  </script>
+</head>
+<body>
+  <h1>📿 Prayer Tracker</h1>
+  <iframe src="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" width="100%" height="600" style="border:none;"></iframe>
+  <button id="installBtn" style="display:none;">📲 Add to Home Screen</button>
+</body>
+</html>
