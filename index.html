@@ -12,27 +12,50 @@
   <link rel="stylesheet" href="/prayer-pwa/style.css">
   <title>Prayer Tracker</title>
   <style>
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
+      font-family: sans-serif;
       width: 100vw;
       height: 100vh;
-      font-family: sans-serif;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header, footer {
+      height: 40px;
+      background: #0d6efd;
+      color: white;
+      text-align: center;
+      line-height: 40px;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    #statusBar {
+      font-size: 0.85rem;
+      color: white;
+      background: #dc3545;
+      text-align: center;
+      display: none;
+    }
+
+    #mainContent {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     #welcome, #appFrame {
-      width: 100vw;
-      height: 100vh;
+      flex-grow: 1;
       display: none;
-      text-align: center;
-      padding-top: 5vh;
     }
 
     #installBtn {
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
       margin-top: 2rem;
+      padding: 0.7rem 1.2rem;
+      font-size: 1rem;
     }
 
     iframe {
@@ -44,29 +67,55 @@
 </head>
 <body>
 
-  <!-- Welcome Page before installation -->
-  <div id="welcome">
-    <h1>🙏 Prayer Tracker</h1>
-    <p>Install this app for best experience.</p>
-    <button id="installBtn" onclick="installApp()">📲 Install App</button>
+  <header id="headerText">Halleluiah</header>
+  <div id="statusBar">Offline</div>
+
+  <div id="mainContent">
+    <!-- Welcome Page before installation -->
+    <div id="welcome">
+      <h1>🙏 Prayer Tracker</h1>
+      <p>Install this app for best experience.</p>
+      <button id="installBtn" onclick="installApp()">📲 Install App</button>
+    </div>
+
+    <!-- iframe shown only in standalone mode -->
+    <div id="appFrame">
+      <iframe id="appIframe" src=""></iframe>
+    </div>
   </div>
 
-  <!-- iframe shown only in standalone mode -->
-  <div id="appFrame">
-    <iframe id="appIframe" src=""></iframe>
-  </div>
+  <footer>Halleluiah</footer>
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
 
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
+    const showOffline = () => {
+      document.getElementById('statusBar').style.display = 'block';
+      document.getElementById('statusBar').textContent = 'Offline';
+      document.getElementById('headerText').textContent = 'Offline';
+    };
+
+    const showOnline = () => {
+      document.getElementById('statusBar').style.display = 'none';
+      document.getElementById('headerText').textContent = 'Halleluiah';
+    };
+
+    window.addEventListener('online', showOnline);
+    window.addEventListener('offline', showOffline);
+    window.addEventListener('load', () => {
+      if (navigator.onLine) {
+        showOnline();
+      } else {
+        showOffline();
+      }
+    });
+
     if (isStandalone) {
-      // Already installed — show iframe
       document.getElementById("appFrame").style.display = "block";
       document.getElementById("appIframe").src = SCRIPT_URL;
     } else {
-      // Not installed — show install button
       document.getElementById("welcome").style.display = "block";
 
       let deferredPrompt;
@@ -76,7 +125,7 @@
         document.getElementById("installBtn").style.display = "inline-block";
       });
 
-      function installApp() {
+      window.installApp = function () {
         if (deferredPrompt) {
           deferredPrompt.prompt();
           deferredPrompt.userChoice.then(() => {
@@ -84,9 +133,7 @@
             document.getElementById("installBtn").style.display = "none";
           });
         }
-      }
-
-      window.installApp = installApp; // expose to button
+      };
     }
 
     if ('serviceWorker' in navigator) {
