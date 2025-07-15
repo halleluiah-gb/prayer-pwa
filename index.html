@@ -11,41 +11,88 @@
   <link rel="icon" href="/prayer-pwa/icon-192.png">
   <link rel="stylesheet" href="/prayer-pwa/style.css">
   <title>Prayer Tracker</title>
-  <script>
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById("installBtn").style.display = "block";
-    });
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
 
-    function installApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-          deferredPrompt = null;
-          document.getElementById("installBtn").style.display = "none";
-        });
+    #welcome, #appFrame {
+      width: 100vw;
+      height: 100vh;
+      display: none;
+      text-align: center;
+      padding-top: 5vh;
+    }
+
+    #installBtn {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      margin-top: 2rem;
+    }
+
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Welcome Page before installation -->
+  <div id="welcome">
+    <h1>🙏 Prayer Tracker</h1>
+    <p>Install this app for best experience.</p>
+    <button id="installBtn" onclick="installApp()">📲 Install App</button>
+  </div>
+
+  <!-- iframe shown only in standalone mode -->
+  <div id="appFrame">
+    <iframe id="appIframe" src=""></iframe>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    if (isStandalone) {
+      // Already installed — show iframe
+      document.getElementById("appFrame").style.display = "block";
+      document.getElementById("appIframe").src = SCRIPT_URL;
+    } else {
+      // Not installed — show install button
+      document.getElementById("welcome").style.display = "block";
+
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById("installBtn").style.display = "inline-block";
+      });
+
+      function installApp() {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(() => {
+            deferredPrompt = null;
+            document.getElementById("installBtn").style.display = "none";
+          });
+        }
       }
+
+      window.installApp = installApp; // expose to button
     }
 
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/prayer-pwa/sw.js')
-          .then(() => console.log("Service Worker Registered"));
-      });
+      navigator.serviceWorker.register('/prayer-pwa/sw.js')
+        .then(() => console.log("✅ Service Worker Registered"));
     }
   </script>
-</head>
-<body>
-  <div id="app">
-    <iframe 
-      src="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec" 
-      width="100%" 
-      height="100%" 
-      style="border: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;">
-    </iframe>
-    <button id="installBtn" onclick="installApp()" style="display: none; position: fixed; bottom: 10px; right: 10px; z-index: 1000;">📲 Add to Home Screen</button>
-  </div>
 </body>
 </html>
