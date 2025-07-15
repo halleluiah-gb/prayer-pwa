@@ -34,8 +34,7 @@
     // Service worker registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(() => console.log("Service Worker Registered"));
+        navigator.serviceWorker.register('/prayer-pwa/sw.js').then(() => console.log("Service Worker Registered"));
       });
     }
   </script>
