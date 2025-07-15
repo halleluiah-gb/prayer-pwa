@@ -4,47 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0d6efd" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="/prayer-pwa/manifest.json" />
-  <link rel="apple-touch-icon" href="/prayer-pwa/icon-192.png" />
-  <link rel="icon" href="/prayer-pwa/icon-192.png" />
-  <link rel="stylesheet" href="/prayer-pwa/style.css" />
   <title>Prayer Tracker</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2rem; }
+    #installBtn { display: none; padding: 1rem; font-size: 1rem; }
+  </style>
 </head>
 <body>
-  <main>
-    <h1>🙏 Prayer Tracker</h1>
-    <form id="prayerForm">
-      <input type="text" id="nameInput" placeholder="Enter your name" required />
-      <button type="submit">Send to Apps Script</button>
-    </form>
-    <p id="responseArea">Waiting...</p>
-    <button id="installBtn" onclick="installApp()" style="display: none;">📲 Add to Home Screen</button>
-  </main>
+  <h1>🙏 Prayer Tracker</h1>
+  <p>Welcome! Click below to open the app.</p>
+  <button onclick="openApp()">🚀 Open App</button>
+  <br/><br/>
+  <button id="installBtn" onclick="installApp()">📲 Install App</button>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec';
+    const scriptUrl = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
 
-    document.getElementById('prayerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('nameInput').value;
-      const responseArea = document.getElementById('responseArea');
-      responseArea.textContent = 'Sending...';
-      try {
-        const res = await fetch(`${SCRIPT_URL}?name=${encodeURIComponent(name)}`);
-        const data = await res.json();
-        responseArea.textContent = data.message;
-      } catch (err) {
-        responseArea.textContent = 'Failed to connect.';
-      }
-    });
+    function openApp() {
+      window.location.href = scriptUrl;
+    }
 
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      document.getElementById('installBtn').style.display = 'block';
+      document.getElementById("installBtn").style.display = "inline-block";
     });
 
     function installApp() {
@@ -52,7 +37,7 @@
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then(() => {
           deferredPrompt = null;
-          document.getElementById('installBtn').style.display = 'none';
+          document.getElementById("installBtn").style.display = "none";
         });
       }
     }
