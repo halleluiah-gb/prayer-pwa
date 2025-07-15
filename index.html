@@ -7,44 +7,78 @@
   <link rel="manifest" href="/prayer-pwa/manifest.json" />
   <title>Prayer Tracker</title>
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 2rem; }
-    #installBtn { display: none; padding: 1rem; font-size: 1rem; }
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    #welcome, #appFrame {
+      display: none;
+      height: 100%;
+    }
+
+    #installBtn {
+      padding: 1rem;
+      font-size: 1rem;
+    }
+
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
   </style>
 </head>
 <body>
-  <h1>🙏 Prayer Tracker</h1>
-  <p>Welcome! Click below to open the app.</p>
-  <button onclick="openApp()">🚀 Open App</button>
-  <br/><br/>
-  <button id="installBtn" onclick="installApp()">📲 Install App</button>
+
+  <!-- Welcome screen before install -->
+  <div id="welcome">
+    <h1>🙏 Prayer Tracker</h1>
+    <p>Welcome! Please install the app for full experience.</p>
+    <button id="installBtn" onclick="installApp()">📲 Install App</button>
+  </div>
+
+  <!-- iframe loads after installed -->
+  <div id="appFrame">
+    <iframe id="appIframe" src=""></iframe>
+  </div>
 
   <script>
-    const scriptUrl = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+    const APP_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
 
-    function openApp() {
-      window.location.href = scriptUrl;
-    }
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById("installBtn").style.display = "inline-block";
-    });
+    if (isStandalone) {
+      // App was launched from home screen
+      document.getElementById("appFrame").style.display = "block";
+      document.getElementById("appIframe").src = APP_URL;
+    } else {
+      // Show install button
+      document.getElementById("welcome").style.display = "block";
 
-    function installApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-          deferredPrompt = null;
-          document.getElementById("installBtn").style.display = "none";
-        });
-      }
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById("installBtn").style.display = "inline-block";
+
+        document.getElementById("installBtn").onclick = function () {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(() => {
+            deferredPrompt = null;
+            document.getElementById("installBtn").style.display = "none";
+          });
+        };
+      });
     }
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/prayer-pwa/sw.js')
-        .then(() => console.log('Service Worker registered'));
+        .then(() => console.log('✅ Service Worker registered'));
     }
   </script>
 </body>
