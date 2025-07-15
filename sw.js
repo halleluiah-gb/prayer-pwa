@@ -1,18 +1,26 @@
+const CACHE_NAME = 'prayer-cache-v1';
+
+const urlsToCache = [
+  '/prayer-pwa/',
+  '/prayer-pwa/index.html',
+  '/prayer-pwa/manifest.json',
+  '/prayer-pwa/style.css',
+  '/prayer-pwa/icon-192.png',
+  '/prayer-pwa/icon-512.png'
+];
+
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open('prayer-cache').then((cache) => cache.addAll([
-      './',
-      './index.html',
-      './manifest.json',
-      './style.css',
-      './icon-192.png',
-      './icon-512.png'
-    ]))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(urlsToCache);
+    })
   );
 });
 
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((response) => response || fetch(e.request))
+    caches.match(e.request).then((response) => {
+      return response || fetch(e.request);
+    })
   );
 });
