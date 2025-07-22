@@ -75,6 +75,13 @@
       font-size: 0.9rem;
       text-align: center;
     }
+
+    #welcome p, #welcome a {
+      text-align: center;
+      display: block;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -99,83 +106,91 @@
       <h2>Privacy & Terms</h2>
       <p>Please read our <a href="/privacy" target="_blank">Privacy Policy</a> and <a href="/terms-of-service" target="_blank">Terms of Service</a> for full details.</p>
 
-      <button id="installBtn" onclick="installApp()">📲 Install App</button>
+      <button id="installBtn" style="display:none;" onclick="installApp()">📲 Install App</button>
     </div>
 
     <!-- iframe shown only in standalone mode -->
-    <div id="appFrame">
+    <div id="appFrame" style="display:none;">
       <iframe id="appIframe" src=""></iframe>
     </div>
   </div>
 
   <footer>© 2025 Halleluiah | <a href="/privacy" target="_blank">Privacy</a> | <a href="/terms-of-service" target="_blank">Terms</a></footer>
 
-<script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    let deferredPrompt = null;
 
-  let deferredPrompt = null;
+    const showOffline = () => {
+      document.getElementById('statusBar').style.display = 'block';
+      document.getElementById('statusBar').textContent = 'Offline';
+      document.getElementById('headerText').textContent = 'Offline';
+    };
 
-  const showOffline = () => {
-    document.getElementById('statusBar').style.display = 'block';
-    document.getElementById('statusBar').textContent = 'Offline';
-    document.getElementById('headerText').textContent = 'Offline';
-  };
+    const showOnline = () => {
+      document.getElementById('statusBar').style.display = 'none';
+      document.getElementById('headerText').textContent = 'Halleluiah - Prayer Tracker';
+    };
 
-  const showOnline = () => {
-    document.getElementById('statusBar').style.display = 'none';
-    document.getElementById('headerText').textContent = 'Halleluiah - Prayer Tracker';
-  };
+    window.addEventListener('online', showOnline);
+    window.addEventListener('offline', showOffline);
 
-  window.addEventListener('online', showOnline);
-  window.addEventListener('offline', showOffline);
-  window.addEventListener('load', () => {
-    if (navigator.onLine) {
-      showOnline();
-    } else {
-      showOffline();
-    }
+    window.addEventListener('load', () => {
+      if (navigator.onLine) {
+        showOnline();
+      } else {
+        showOffline();
+      }
 
-    // Handle install UI
-    if (isStandalone) {
-      document.getElementById("appFrame").style.display = "block";
-      document.getElementById("appIframe").src = SCRIPT_URL;
-    } else {
-      document.getElementById("welcome").style.display = "block";
-      document.getElementById("installBtn").style.display = "none"; // Hide by default
-    }
-  });
+      const welcomeDiv = document.getElementById("welcome");
 
-  // Listen for install prompt
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    document.getElementById("installBtn").style.display = "inline-block";
-  });
+      if (isStandalone) {
+        document.getElementById("appFrame").style.display = "block";
+        document.getElementById("appIframe").src = SCRIPT_URL;
+      } else {
+        welcomeDiv.style.display = "block";
 
-  // Trigger install prompt
-  window.installApp = function () {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(choiceResult => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log("✅ User accepted install");
-        } else {
-          console.log("❌ User dismissed install");
+        const msg = document.createElement("p");
+        msg.textContent = "✅ App is already installed.";
+
+        const openBtn = document.createElement("a");
+        openBtn.href = SCRIPT_URL;
+        openBtn.textContent = "📂 Open App";
+
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+          welcomeDiv.appendChild(msg);
+          welcomeDiv.appendChild(openBtn);
         }
-        deferredPrompt = null;
-        document.getElementById("installBtn").style.display = "none";
-      });
+      }
+    });
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById("installBtn").style.display = "inline-block";
+    });
+
+    window.installApp = function () {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log("✅ User accepted the install prompt");
+          } else {
+            console.log("❌ User dismissed the install prompt");
+          }
+          document.getElementById("installBtn").style.display = "none";
+          deferredPrompt = null;
+        });
+      }
+    };
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/prayer-pwa/sw.js')
+        .then(() => console.log("✅ Service Worker Registered"))
+        .catch(err => console.error("❌ Service Worker Error", err));
     }
-  };
-
-  // Register Service Worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/prayer-pwa/sw.js')
-      .then(() => console.log("✅ Service Worker Registered"))
-      .catch(err => console.error("❌ Service Worker Error", err));
-  }
-</script>
-
+  </script>
 </body>
 </html>
