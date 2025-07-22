@@ -110,59 +110,72 @@
 
   <footer>© 2025 Halleluiah | <a href="/privacy" target="_blank">Privacy</a> | <a href="/terms-of-service" target="_blank">Terms</a></footer>
 
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-    const showOffline = () => {
-      document.getElementById('statusBar').style.display = 'block';
-      document.getElementById('statusBar').textContent = 'Offline';
-      document.getElementById('headerText').textContent = 'Offline';
-    };
+  let deferredPrompt = null;
 
-    const showOnline = () => {
-      document.getElementById('statusBar').style.display = 'none';
-      document.getElementById('headerText').textContent = 'Halleluiah - Prayer Tracker';
-    };
+  const showOffline = () => {
+    document.getElementById('statusBar').style.display = 'block';
+    document.getElementById('statusBar').textContent = 'Offline';
+    document.getElementById('headerText').textContent = 'Offline';
+  };
 
-    window.addEventListener('online', showOnline);
-    window.addEventListener('offline', showOffline);
-    window.addEventListener('load', () => {
-      if (navigator.onLine) {
-        showOnline();
-      } else {
-        showOffline();
-      }
-    });
+  const showOnline = () => {
+    document.getElementById('statusBar').style.display = 'none';
+    document.getElementById('headerText').textContent = 'Halleluiah - Prayer Tracker';
+  };
 
+  window.addEventListener('online', showOnline);
+  window.addEventListener('offline', showOffline);
+  window.addEventListener('load', () => {
+    if (navigator.onLine) {
+      showOnline();
+    } else {
+      showOffline();
+    }
+
+    // Handle install UI
     if (isStandalone) {
       document.getElementById("appFrame").style.display = "block";
       document.getElementById("appIframe").src = SCRIPT_URL;
     } else {
       document.getElementById("welcome").style.display = "block";
+      document.getElementById("installBtn").style.display = "none"; // Hide by default
+    }
+  });
 
-      let deferredPrompt;
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById("installBtn").style.display = "inline-block";
-      });
+  // Listen for install prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById("installBtn").style.display = "inline-block";
+  });
 
-      window.installApp = function () {
-        if (deferredPrompt) {
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then(() => {
-            deferredPrompt = null;
-            document.getElementById("installBtn").style.display = "none";
-          });
+  // Trigger install prompt
+  window.installApp = function () {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(choiceResult => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log("✅ User accepted install");
+        } else {
+          console.log("❌ User dismissed install");
         }
-      };
+        deferredPrompt = null;
+        document.getElementById("installBtn").style.display = "none";
+      });
     }
+  };
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/prayer-pwa/sw.js')
-        .then(() => console.log("✅ Service Worker Registered"));
-    }
-  </script>
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/prayer-pwa/sw.js')
+      .then(() => console.log("✅ Service Worker Registered"))
+      .catch(err => console.error("❌ Service Worker Error", err));
+  }
+</script>
+
 </body>
 </html>
