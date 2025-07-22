@@ -21,19 +21,29 @@
       background: white;
     }
 
-    #statusBar {
-      font-size: 0.85rem;
-      color: white;
-      background: #dc3545;
+    #banner {
+      height: 40px;
+      line-height: 40px;
       text-align: center;
+      font-weight: bold;
+      font-size: 1rem;
+      color: white;
+      background: #0d6efd;
+    }
+
+    #offlineBanner {
       display: none;
-      padding: 4px;
+      background: #dc3545;
+      color: white;
+      text-align: center;
+      padding: 0.5rem;
+      font-weight: bold;
     }
 
     #welcome {
       padding: 1.5rem;
       text-align: center;
-      height: 100%;
+      height: calc(100% - 40px);
       box-sizing: border-box;
     }
 
@@ -45,10 +55,11 @@
     }
 
     #appFrame {
-      height: 100%;
+      height: calc(100% - 40px);
       width: 100%;
       overflow: hidden;
       display: none;
+      position: relative;
     }
 
     iframe {
@@ -58,11 +69,20 @@
       display: block;
     }
 
-    footer {
-      font-size: 0.9rem;
-      color: #666;
-      text-align: center;
-      margin-top: 2rem;
+    #loadingOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #0d6efd;
+      z-index: 10;
     }
 
     a {
@@ -72,29 +92,28 @@
   </style>
 </head>
 <body>
-  <div id="statusBar">Offline</div>
+  <div id="banner">🙏 Halleluiah - Prayer Tracker</div>
+  <div id="offlineBanner">❌ You are currently offline</div>
 
-  <div id="welcome" style="display: none;">
-    <h1>🙏 Halleluiah Prayer Tracker</h1>
+  <div id="welcome">
+    <h1>Welcome to Halleluiah Prayer Tracker</h1>
     <p>This app helps you track your daily prayer minutes securely.</p>
 
     <h3>Why Google Access?</h3>
-    <p>We need minimal access to:</p>
+    <p>We need limited access to:</p>
     <ul style="text-align: left; display: inline-block;">
-      <li>Log your prayers to a secure developer sheet</li>
-      <li>Send you password reset emails</li>
+      <li>Log your prayer times to a secure developer sheet</li>
+      <li>Send password reset emails if needed</li>
     </ul>
-    <p>Your data is never shared.</p>
 
-    <p>
-      <a href="/privacy" target="_blank">Privacy Policy</a> | 
-      <a href="/terms-of-service" target="_blank">Terms</a>
-    </p>
+    <p>Your data is never shared.</p>
+    <p><a href="/privacy" target="_blank">Privacy Policy</a> | <a href="/terms-of-service" target="_blank">Terms</a></p>
 
     <button id="installBtn" onclick="installApp()">📲 Install App</button>
   </div>
 
   <div id="appFrame">
+    <div id="loadingOverlay">⏳ Loading App...</div>
     <iframe id="appIframe" src=""></iframe>
   </div>
 
@@ -103,12 +122,14 @@
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     let deferredPrompt = null;
 
-    const showOffline = () => {
-      document.getElementById('statusBar').style.display = 'block';
+    const showOnline = () => {
+      document.getElementById('offlineBanner').style.display = 'none';
+      document.getElementById('banner').style.background = '#0d6efd';
     };
 
-    const showOnline = () => {
-      document.getElementById('statusBar').style.display = 'none';
+    const showOffline = () => {
+      document.getElementById('offlineBanner').style.display = 'block';
+      document.getElementById('banner').style.background = '#dc3545';
     };
 
     window.addEventListener('online', showOnline);
@@ -119,8 +140,13 @@
       else showOffline();
 
       if (isStandalone) {
+        document.getElementById("welcome").style.display = "none";
         document.getElementById("appFrame").style.display = "block";
-        document.getElementById("appIframe").src = SCRIPT_URL;
+        const iframe = document.getElementById("appIframe");
+        iframe.src = SCRIPT_URL;
+        iframe.onload = () => {
+          document.getElementById("loadingOverlay").style.display = "none";
+        };
       } else {
         document.getElementById("welcome").style.display = "block";
       }
@@ -144,8 +170,8 @@
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/prayer-pwa/sw.js')
-        .then(() => console.log("✅ SW registered"))
-        .catch(err => console.error("❌ SW error", err));
+        .then(() => console.log("✅ Service Worker Registered"))
+        .catch(err => console.error("❌ SW Error", err));
     }
   </script>
 </body>
