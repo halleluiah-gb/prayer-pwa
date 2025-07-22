@@ -7,11 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="/manifest.json" />
-<link rel="apple-touch-icon" href="/icon-192.png" />
-<link rel="icon" href="/icon-192.png" />
-  <link rel="stylesheet" href="/prayer-pwa/style.css" />
-
-
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <link rel="icon" href="/icon-192.png" />
   <title>Prayer Tracker - Halleluiah</title>
   <style>
     html, body {
@@ -51,14 +48,15 @@
       overflow-y: auto;
     }
 
-    h1, h2 {
-      margin: 0.5rem 0;
+    #welcome {
+      display: none;
     }
 
     #installBtn {
       margin-top: 1rem;
       padding: 0.7rem 1.2rem;
       font-size: 1rem;
+      display: none;
     }
 
     iframe {
@@ -77,13 +75,6 @@
       font-size: 0.9rem;
       text-align: center;
     }
-
-    #welcome p, #welcome a {
-      text-align: center;
-      display: block;
-      font-size: 1rem;
-      margin-top: 0.5rem;
-    }
   </style>
 </head>
 <body>
@@ -91,36 +82,43 @@
   <div id="statusBar">Offline</div>
 
   <div id="mainContent">
-    <!-- Welcome Page before installation -->
+    <!-- Welcome screen before install -->
     <div id="welcome">
       <h1>Welcome to Halleluiah Prayer Tracker</h1>
-      <p><strong>Purpose:</strong> Halleluiah is a simple web app designed to help you track the minutes you pray each day. You can submit, view, and review your prayer records over time.</p>
+      <p><strong>Purpose:</strong> This app helps you track your daily prayer time by securely storing your entries.</p>
 
-      <h2>Why We Request Google Access</h2>
-      <p>We use Google Sheets to store your submitted prayer data securely. We require limited access to your Google account in order to:</p>
+      <h2>Why Google Access?</h2>
+      <p>This app needs limited access to your Google account in order to:</p>
       <ul>
-        <li>Read/write your prayer log in a private Google Sheet</li>
-        <li>Send password reset emails if needed</li>
+        <li>Log your prayer times in the developer's secure Google Sheet</li>
+        <li>Send password reset emails (if requested)</li>
       </ul>
 
-      <p>Your data is never shared with third parties and is only used within this app for its intended purpose.</p>
+      <p>Your data is never shared with third parties.</p>
 
       <h2>Privacy & Terms</h2>
-      <p>Please read our <a href="/privacy" target="_blank">Privacy Policy</a> and <a href="/terms-of-service" target="_blank">Terms of Service</a> for full details.</p>
+      <p>
+        Read our <a href="/privacy" target="_blank">Privacy Policy</a> and 
+        <a href="/terms-of-service" target="_blank">Terms of Service</a>.
+      </p>
 
-      <button id="installBtn" style="display:none;" onclick="installApp()">📲 Install App</button>
+      <button id="installBtn" onclick="installApp()">📲 Install App</button>
     </div>
 
-    <!-- iframe shown only in standalone mode -->
+    <!-- App iframe after installation -->
     <div id="appFrame" style="display:none;">
       <iframe id="appIframe" src=""></iframe>
     </div>
   </div>
 
-  <footer>© 2025 Halleluiah | <a href="/privacy" target="_blank">Privacy</a> | <a href="/terms-of-service" target="_blank">Terms</a></footer>
+  <footer>
+    © 2025 Halleluiah | 
+    <a href="/privacy" target="_blank">Privacy</a> | 
+    <a href="/terms-of-service" target="_blank">Terms</a>
+  </footer>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     let deferredPrompt = null;
 
@@ -132,38 +130,21 @@
 
     const showOnline = () => {
       document.getElementById('statusBar').style.display = 'none';
-      document.getElementById('headerText').textContent = 'Halleluiah - Prayer Tracker';
+      document.getElementById('headerText').textContent = '🙏 Halleluiah - Prayer Tracker';
     };
 
     window.addEventListener('online', showOnline);
     window.addEventListener('offline', showOffline);
 
     window.addEventListener('load', () => {
-      if (navigator.onLine) {
-        showOnline();
-      } else {
-        showOffline();
-      }
-
-      const welcomeDiv = document.getElementById("welcome");
+      if (navigator.onLine) showOnline();
+      else showOffline();
 
       if (isStandalone) {
         document.getElementById("appFrame").style.display = "block";
         document.getElementById("appIframe").src = SCRIPT_URL;
       } else {
-        welcomeDiv.style.display = "block";
-
-        const msg = document.createElement("p");
-        msg.textContent = "✅ App is already installed.";
-
-        const openBtn = document.createElement("a");
-        openBtn.href = SCRIPT_URL;
-        openBtn.textContent = "📂 Open App";
-
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-          welcomeDiv.appendChild(msg);
-          welcomeDiv.appendChild(openBtn);
-        }
+        document.getElementById("welcome").style.display = "block";
       }
     });
 
@@ -173,25 +154,20 @@
       document.getElementById("installBtn").style.display = "inline-block";
     });
 
-    window.installApp = function () {
+    function installApp() {
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log("✅ User accepted the install prompt");
-          } else {
-            console.log("❌ User dismissed the install prompt");
-          }
-          document.getElementById("installBtn").style.display = "none";
+        deferredPrompt.userChoice.then((choice) => {
           deferredPrompt = null;
+          document.getElementById("installBtn").style.display = "none";
         });
       }
-    };
+    }
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/prayer-pwa/sw.js')
-        .then(() => console.log("✅ Service Worker Registered"))
-        .catch(err => console.error("❌ Service Worker Error", err));
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch(err => console.error("❌ SW Error", err));
     }
   </script>
 </body>
