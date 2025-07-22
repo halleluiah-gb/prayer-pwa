@@ -1,12 +1,13 @@
 const CACHE_NAME = 'prayer-cache-v1';
 const urlsToCache = [
-  '/prayer-pwa/',
-  '/prayer-pwa/index.html',
-  '/prayer-pwa/manifest.json',
-  '/prayer-pwa/style.css',
-  '/prayer-pwa/icon-192.png',
-  '/prayer-pwa/icon-512.png'
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/style.css',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
+
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
