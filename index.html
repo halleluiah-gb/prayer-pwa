@@ -14,8 +14,9 @@
     html, body {
       margin: 0;
       padding: 0;
-      width: 100vw;
-      height: 100vh;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
       font-family: sans-serif;
       background: white;
     }
@@ -32,6 +33,8 @@
     #welcome {
       padding: 1.5rem;
       text-align: center;
+      height: 100%;
+      box-sizing: border-box;
     }
 
     #installBtn {
@@ -42,15 +45,16 @@
     }
 
     #appFrame {
-      width: 100vw;
-      height: 100vh;
+      height: 100%;
+      width: 100%;
       overflow: hidden;
+      display: none;
     }
 
     iframe {
-      width: 100%;
-      height: 100%;
       border: none;
+      height: 100%;
+      width: 100%;
       display: block;
     }
 
@@ -70,7 +74,6 @@
 <body>
   <div id="statusBar">Offline</div>
 
-  <!-- Welcome shown before install -->
   <div id="welcome" style="display: none;">
     <h1>🙏 Halleluiah Prayer Tracker</h1>
     <p>This app helps you track your daily prayer minutes securely.</p>
@@ -91,8 +94,7 @@
     <button id="installBtn" onclick="installApp()">📲 Install App</button>
   </div>
 
-  <!-- iframe container after install -->
-  <div id="appFrame" style="display: none;">
+  <div id="appFrame">
     <iframe id="appIframe" src=""></iframe>
   </div>
 
