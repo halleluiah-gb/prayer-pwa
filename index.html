@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0d6efd">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="/prayer-pwa/manifest.json">
-  <link rel="apple-touch-icon" href="/prayer-pwa/icon-192.png">
-  <link rel="icon" href="/prayer-pwa/icon-192.png">
-  <link rel="stylesheet" href="/prayer-pwa/style.css">
-  <title>Prayer Tracker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d6efd" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="/prayer-pwa/manifest.json" />
+  <link rel="apple-touch-icon" href="/prayer-pwa/icon-192.png" />
+  <link rel="icon" href="/prayer-pwa/icon-192.png" />
+  <link rel="stylesheet" href="/prayer-pwa/style.css" />
+  <title>Prayer Tracker - Halleluiah</title>
   <style>
     html, body {
       margin: 0;
@@ -45,15 +45,16 @@
       flex-grow: 1;
       display: flex;
       flex-direction: column;
+      padding: 1rem;
+      overflow-y: auto;
     }
 
-    #welcome, #appFrame {
-      flex-grow: 1;
-      display: none;
+    h1, h2 {
+      margin: 0.5rem 0;
     }
 
     #installBtn {
-      margin-top: 2rem;
+      margin-top: 1rem;
       padding: 0.7rem 1.2rem;
       font-size: 1rem;
     }
@@ -63,18 +64,36 @@
       width: 100%;
       height: 100%;
     }
+
+    a {
+      color: #0d6efd;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-
-  <header id="headerText">Halleluiah</header>
+  <header id="headerText">🙏 Halleluiah - Prayer Tracker</header>
   <div id="statusBar">Offline</div>
 
   <div id="mainContent">
     <!-- Welcome Page before installation -->
     <div id="welcome">
-      <h1>🙏 Prayer Tracker</h1>
-      <p>Install this app for best experience.</p>
+      <h1>Welcome to Halleluiah Prayer Tracker</h1>
+      <p><strong>Purpose:</strong> Halleluiah is a simple web app designed to help you track the minutes you pray each day. You can submit, view, and review your prayer records over time.</p>
+
+      <h2>Why We Request Google Access</h2>
+      <p>We use Google Sheets to store your submitted prayer data securely. We require limited access to your Google account in order to:
+        <ul>
+          <li>Read/write your prayer log in a private Google Sheet</li>
+          <li>Send password reset emails if needed</li>
+        </ul>
+      </p>
+
+      <p>Your data is never shared with third parties and is only used within this app for its intended purpose.</p>
+
+      <h2>Privacy Policy</h2>
+      <p>Please read our <a href="/privacy" target="_blank">Privacy Policy</a> for full details.</p>
+
       <button id="installBtn" onclick="installApp()">📲 Install App</button>
     </div>
 
@@ -84,11 +103,10 @@
     </div>
   </div>
 
-  <footer>Halleluiah</footer>
+  <footer>© 2025 Halleluiah</footer>
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
-
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
     const showOffline = () => {
@@ -99,7 +117,7 @@
 
     const showOnline = () => {
       document.getElementById('statusBar').style.display = 'none';
-      document.getElementById('headerText').textContent = 'Halleluiah';
+      document.getElementById('headerText').textContent = 'Halleluiah - Prayer Tracker';
     };
 
     window.addEventListener('online', showOnline);
