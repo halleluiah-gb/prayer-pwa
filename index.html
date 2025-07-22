@@ -145,7 +145,7 @@
       if (isStandalone) {
         document.getElementById("welcome").style.display = "none";
         document.getElementById("appFrame").style.display = "block";
-        document.getElementById("installedBanner").style.display = "block";
+       
         const iframe = document.getElementById("appIframe");
         iframe.src = SCRIPT_URL;
         iframe.onload = () => {
@@ -168,6 +168,7 @@
         deferredPrompt.userChoice.then(() => {
           deferredPrompt = null;
           document.getElementById("installBtn").style.display = "none";
+          document.getElementById("installedBanner").style.display = "block";
         });
       }
     }
