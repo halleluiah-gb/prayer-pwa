@@ -110,7 +110,10 @@
     <p><a href="/privacy" target="_blank">Privacy Policy</a> | <a href="/terms-of-service" target="_blank">Terms</a></p>
 
     <button id="installBtn" onclick="installApp()">📲 Install App</button>
-  </div>
+  </div><div id="installedBanner" style="display:none; background:#e0f7e9; color:#155724; padding:10px; text-align:center; font-weight:bold;">
+  ✅ Halleluiah app is already installed.
+  <a href="https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec" style="margin-left:10px; color:#0d6efd; text-decoration:underline;">Open App</a>
+</div>
 
   <div id="appFrame">
     <div id="loadingOverlay">⏳ Loading App...</div>
@@ -142,6 +145,7 @@
       if (isStandalone) {
         document.getElementById("welcome").style.display = "none";
         document.getElementById("appFrame").style.display = "block";
+        document.getElementById("installedBanner").style.display = "block";
         const iframe = document.getElementById("appIframe");
         iframe.src = SCRIPT_URL;
         iframe.onload = () => {
