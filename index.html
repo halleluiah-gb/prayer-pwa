@@ -69,6 +69,12 @@
       color: #0d6efd;
       text-decoration: underline;
     }
+
+    .policy-links {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -82,17 +88,16 @@
       <p><strong>Purpose:</strong> Halleluiah is a simple web app designed to help you track the minutes you pray each day. You can submit, view, and review your prayer records over time.</p>
 
       <h2>Why We Request Google Access</h2>
-      <p>We use Google Sheets to store your submitted prayer data securely. We require limited access to your Google account in order to:
-        <ul>
-          <li>Read/write your prayer log in a private Google Sheet</li>
-          <li>Send password reset emails if needed</li>
-        </ul>
-      </p>
+      <p>We use Google Sheets to store your submitted prayer data securely. We require limited access to your Google account in order to:</p>
+      <ul>
+        <li>Read/write your prayer log in a private Google Sheet</li>
+        <li>Send password reset emails if needed</li>
+      </ul>
 
       <p>Your data is never shared with third parties and is only used within this app for its intended purpose.</p>
 
-      <h2>Privacy Policy</h2>
-      <p>Please read our <a href="/privacy" target="_blank">Privacy Policy</a> for full details.</p>
+      <h2>Privacy & Terms</h2>
+      <p>Please read our <a href="/privacy" target="_blank">Privacy Policy</a> and <a href="/terms-of-service" target="_blank">Terms of Service</a> for full details.</p>
 
       <button id="installBtn" onclick="installApp()">📲 Install App</button>
     </div>
@@ -103,7 +108,7 @@
     </div>
   </div>
 
-  <footer>© 2025 Halleluiah</footer>
+  <footer>© 2025 Halleluiah | <a href="/privacy" target="_blank">Privacy</a> | <a href="/terms-of-service" target="_blank">Terms</a></footer>
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
