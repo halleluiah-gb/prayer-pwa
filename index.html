@@ -180,7 +180,7 @@ Your data is never sold or shared. All information is securely stored and only a
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/prayer-pwa/sw.js')
+      navigator.serviceWorker.register('/sw.js')
         .then(() => console.log("✅ Service Worker Registered"))
         .catch(err => console.error("❌ SW Error", err));
     }
