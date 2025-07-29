@@ -96,34 +96,21 @@
   <div id="offlineBanner">❌ You are currently offline</div>
 
   <div id="welcome">
-    <h1>🙏 Welcome to Halleluiah Prayer Tracker</h1>
+    <h1>Welcome to Halleluiah Prayer Tracker</h1>
+    <p>This app helps you track your daily prayer minutes securely.</p>
 
-<p><strong>What is this app?</strong><br>
-Halleluiah Prayer Tracker is a spiritual journal app that helps you track daily prayer minutes for yourself or your family. You can log prayers, record reflections, and view progress over time.</p>
+    <h3>Why Google Access?</h3>
+    <p>We need limited access to:</p>
+    <ul style="text-align: left; display: inline-block;">
+      <li>Log your prayer times to a secure developer sheet</li>
+      <li>Send password reset emails if needed</li>
+    </ul>
 
-<p><strong>Why does it need Google Access?</strong><br>
-We request limited access to your Google account for the following reasons:</p>
-<ul>
-  <li>✔️ Log your prayer data securely in a private Google Sheet (only you and the developer have access)</li>
-  <li>📧 Send password reset emails if you forget your login</li>
-</ul>
-
-<p><strong>Who is it for?</strong><br>
-Anyone seeking to maintain a spiritual routine, including individuals, families, and small prayer groups.</p>
-
-<p><strong>Data Safety:</strong><br>
-Your data is never sold or shared. All information is securely stored and only accessed with your permission.</p>
-
-<p>
-  <a href="/privacy.html">Privacy Policy</a> |
-  <a href="/terms.html">Terms of Service</a> |
-  Contact: <a href="mailto:bijyjiby.com">bijyjiby@gmail.com</a>
-</p>
-</div>
-
+    <p>Your data is never shared.</p>
+    <p><a href="/privacy" target="_blank">Privacy Policy</a> | <a href="/terms-of-service" target="_blank">Terms</a></p>
 
     <button id="installBtn" onclick="installApp()">📲 Install App</button>
-  
+  </div>
 
   <div id="appFrame">
     <div id="loadingOverlay">⏳ Loading App...</div>
@@ -144,9 +131,7 @@ Your data is never sold or shared. All information is securely stored and only a
       document.getElementById('offlineBanner').style.display = 'block';
       document.getElementById('banner').style.background = '#dc3545';
     };
-  window.addEventListener('beforeinstallprompt', (e) => {
-  console.log('📲 beforeinstallprompt fired');
-});
+
     window.addEventListener('online', showOnline);
     window.addEventListener('offline', showOffline);
 
@@ -184,7 +169,7 @@ Your data is never sold or shared. All information is securely stored and only a
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker.register('/prayer-pwa/sw.js')
         .then(() => console.log("✅ Service Worker Registered"))
         .catch(err => console.error("❌ SW Error", err));
     }
