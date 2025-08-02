@@ -180,6 +180,14 @@
         .then(() => console.log("✅ Service Worker Registered"))
         .catch(err => console.error("❌ SW Error", err));
     }
+
+
+    window.addEventListener('load', () => {
+        if (!('onbeforeinstallprompt' in window)) {
+          document.getElementById("installHelp").style.display = "block";
+        }
+      });
+
   </script>
 </body>
 </html>
