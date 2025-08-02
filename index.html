@@ -99,19 +99,18 @@
     <h1>Welcome to Halleluiah Prayer Tracker</h1>
     <p>Halleluiah Prayer Tracker is a spiritual journal app that helps you track daily prayer minutes for yourself or your family. You can log prayers, record reflections, and view progress over time.</p>
 
-   
     <p>We request limited access to your Google account for the following reasons:</p>
     <ul style="text-align: left; display: inline-block;">
-      <li>Log your prayer times to a secure developer sheet. </li>
+      <li>Log your prayer times to a secure developer sheet.</li>
       <li>Send password reset emails if needed</li>
     </ul>
-  <p><strong>Who is it for?</strong><br>
-    Anyone seeking to maintain a spiritual routine, including individuals, families, and small prayer groups.</p>
+    <p><strong>Who is it for?</strong><br>
+      Anyone seeking to maintain a spiritual routine, including individuals, families, and small prayer groups.</p>
 
     <p>Your data is never shared.</p>
     <p><a href="/privacy" target="_blank">Privacy Policy</a> | <a href="/terms-of-service" target="_blank">Terms</a></p>
 
-    <button id="installBtn" onclick="installApp()">📲 Install App</button>
+    <button id="installBtn">📲 Install App</button>
   </div>
 
   <div id="appFrame">
@@ -124,6 +123,14 @@
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     let deferredPrompt = null;
 
+    // Service worker registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log("✅ Service Worker Registered"))
+        .catch(err => console.error("❌ SW Error", err));
+    }
+
+    // Online/offline handling
     const showOnline = () => {
       document.getElementById('offlineBanner').style.display = 'none';
       document.getElementById('banner').style.background = '#0d6efd';
@@ -137,6 +144,7 @@
     window.addEventListener('online', showOnline);
     window.addEventListener('offline', showOffline);
 
+    // App display logic
     window.addEventListener('load', () => {
       if (navigator.onLine) showOnline();
       else showOffline();
@@ -154,26 +162,42 @@
       }
     });
 
+    // Install prompt handling (for Android/Chrome)
     window.addEventListener('beforeinstallprompt', (e) => {
+      console.log("🔥 beforeinstallprompt fired");
       e.preventDefault();
       deferredPrompt = e;
-      document.getElementById("installBtn").style.display = "inline-block";
+      const btn = document.getElementById("installBtn");
+      btn.style.display = "inline-block";
+      btn.onclick = () => {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(choice => {
+          if (choice.outcome === 'accepted') {
+            console.log("✅ App installed");
+          } else {
+            console.log("❌ User dismissed install");
+          }
+          deferredPrompt = null;
+          btn.style.display = "none";
+        });
+      };
     });
 
-    function installApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-          deferredPrompt = null;
-          document.getElementById("installBtn").style.display = "none";
-        });
-      }
+    // iOS fallback install message
+    function isIos() {
+      return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    }
+    function isInStandaloneMode() {
+      return ('standalone' in window.navigator) && window.navigator.standalone;
     }
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log("✅ Service Worker Registered"))
-        .catch(err => console.error("❌ SW Error", err));
+    if (isIos() && !isInStandaloneMode()) {
+      const btn = document.getElementById("installBtn");
+      btn.style.display = "inline-block";
+      btn.textContent = "📲 Add to Home Screen";
+      btn.onclick = () => {
+        alert("To install this app:\n1. Tap the Share icon\n2. Choose 'Add to Home Screen'");
+      };
     }
   </script>
 </body>
