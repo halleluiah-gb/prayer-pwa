@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0d6efd" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -47,6 +47,13 @@
       box-sizing: border-box;
     }
 
+    #installBtn {
+      margin-top: 1.5rem;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      display: none;
+    }
+
     #appFrame {
       height: calc(100% - 40px);
       width: 100%;
@@ -82,39 +89,6 @@
       color: #0d6efd;
       text-decoration: none;
     }
-
-    /* Floating Install FAB */
-    #installFab {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      display: none;
-      align-items: center;
-      gap: 8px;
-      z-index: 9999;
-    }
-
-    #installBtn {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background-color: #0d6efd;
-      color: white;
-      font-size: 1.5rem;
-      border: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      cursor: pointer;
-    }
-
-    #installLabel {
-      background: #0d6efd;
-      color: white;
-      padding: 0.4rem 0.8rem;
-      border-radius: 999px;
-      font-size: 1rem;
-      white-space: nowrap;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    }
   </style>
 </head>
 <body>
@@ -123,27 +97,26 @@
 
   <div id="welcome">
     <h1>Welcome to Halleluiah Prayer Tracker</h1>
-    <p>Track daily prayer minutes for yourself or your family. You can log prayers, record reflections, and view progress.</p>
+    <p>Halleluiah Prayer Tracker is a spiritual journal app that helps you track daily prayer minutes for yourself or your family. You can log prayers, record reflections, and view progress over time.</p>
+
+   
     <p>We request limited access to your Google account for the following reasons:</p>
     <ul style="text-align: left; display: inline-block;">
-      <li>Log your prayer times securely</li>
+      <li>Log your prayer times to a secure developer sheet. </li>
       <li>Send password reset emails if needed</li>
     </ul>
-    <p><strong>Who is it for?</strong><br>
-      Individuals, families, and small prayer groups.</p>
+  <p><strong>Who is it for?</strong><br>
+    Anyone seeking to maintain a spiritual routine, including individuals, families, and small prayer groups.</p>
+
     <p>Your data is never shared.</p>
     <p><a href="/privacy" target="_blank">Privacy Policy</a> | <a href="/terms-of-service" target="_blank">Terms</a></p>
+
+    <button id="installBtn" onclick="installApp()">📲 Install App</button>
   </div>
 
   <div id="appFrame">
     <div id="loadingOverlay">⏳ Loading App...</div>
     <iframe id="appIframe" src=""></iframe>
-  </div>
-
-  <!-- Install App FAB -->
-  <div id="installFab">
-    <button id="installBtn" onclick="installApp()">📲</button>
-    <span id="installLabel">Install App</span>
   </div>
 
   <script>
@@ -184,7 +157,7 @@
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      document.getElementById("installFab").style.display = "flex";
+      document.getElementById("installBtn").style.display = "inline-block";
     });
 
     function installApp() {
@@ -192,7 +165,7 @@
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then(() => {
           deferredPrompt = null;
-          document.getElementById("installFab").style.display = "none";
+          document.getElementById("installBtn").style.display = "none";
         });
       }
     }
