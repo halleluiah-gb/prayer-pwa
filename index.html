@@ -47,13 +47,6 @@
       box-sizing: border-box;
     }
 
-    #installBtn {
-      margin-top: 1.5rem;
-      padding: 0.8rem 1.5rem;
-      font-size: 1rem;
-      display: none;
-    }
-
     #appFrame {
       height: calc(100% - 40px);
       width: 100%;
@@ -85,6 +78,27 @@
       z-index: 10;
     }
 
+    #installBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background-color: #0d6efd;
+      color: white;
+      font-size: 1.5rem;
+      border: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 9999;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #installBtn:hover {
+      background-color: #0b5ed7;
+    }
+
     a {
       color: #0d6efd;
       text-decoration: none;
@@ -97,20 +111,22 @@
 
   <div id="welcome">
     <h1>Welcome to Halleluiah Prayer Tracker</h1>
-    <p>Halleluiah Prayer Tracker is a spiritual journal app that helps you track daily prayer minutes for yourself or your family. You can log prayers, record reflections, and view progress over time.</p>
+    <p>Track daily prayer minutes for yourself or your family. Log prayers, record reflections, and view progress over time.</p>
 
-    <p>We request limited access to your Google account for the following reasons:</p>
+    <p>We request limited access to your Google account for:</p>
     <ul style="text-align: left; display: inline-block;">
-      <li>Log your prayer times to a secure developer sheet.</li>
-      <li>Send password reset emails if needed</li>
+      <li>Logging prayer times securely</li>
+      <li>Sending password reset emails</li>
     </ul>
+
     <p><strong>Who is it for?</strong><br>
-      Anyone seeking to maintain a spiritual routine, including individuals, families, and small prayer groups.</p>
+      Individuals, families, and small prayer groups seeking to maintain a spiritual routine.</p>
 
     <p>Your data is never shared.</p>
-    <p><a href="/privacy" target="_blank">Privacy Policy</a> | <a href="/terms-of-service" target="_blank">Terms</a></p>
-
-    <button id="installBtn">📲 Install App</button>
+    <p>
+      <a href="/privacy" target="_blank">Privacy Policy</a> |
+      <a href="/terms-of-service" target="_blank">Terms</a>
+    </p>
   </div>
 
   <div id="appFrame">
@@ -118,19 +134,13 @@
     <iframe id="appIframe" src=""></iframe>
   </div>
 
+  <button id="installBtn" onclick="installApp()">📲</button>
+
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     let deferredPrompt = null;
 
-    // Service worker registration
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log("✅ Service Worker Registered"))
-        .catch(err => console.error("❌ SW Error", err));
-    }
-
-    // Online/offline handling
     const showOnline = () => {
       document.getElementById('offlineBanner').style.display = 'none';
       document.getElementById('banner').style.background = '#0d6efd';
@@ -144,7 +154,6 @@
     window.addEventListener('online', showOnline);
     window.addEventListener('offline', showOffline);
 
-    // App display logic
     window.addEventListener('load', () => {
       if (navigator.onLine) showOnline();
       else showOffline();
@@ -162,42 +171,26 @@
       }
     });
 
-    // Install prompt handling (for Android/Chrome)
     window.addEventListener('beforeinstallprompt', (e) => {
-      console.log("🔥 beforeinstallprompt fired");
       e.preventDefault();
       deferredPrompt = e;
-      const btn = document.getElementById("installBtn");
-      btn.style.display = "inline-block";
-      btn.onclick = () => {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(choice => {
-          if (choice.outcome === 'accepted') {
-            console.log("✅ App installed");
-          } else {
-            console.log("❌ User dismissed install");
-          }
-          deferredPrompt = null;
-          btn.style.display = "none";
-        });
-      };
+      document.getElementById("installBtn").style.display = "block";
     });
 
-    // iOS fallback install message
-    function isIos() {
-      return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-    }
-    function isInStandaloneMode() {
-      return ('standalone' in window.navigator) && window.navigator.standalone;
+    function installApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+          document.getElementById("installBtn").style.display = "none";
+        });
+      }
     }
 
-    if (isIos() && !isInStandaloneMode()) {
-      const btn = document.getElementById("installBtn");
-      btn.style.display = "inline-block";
-      btn.textContent = "📲 Add to Home Screen";
-      btn.onclick = () => {
-        alert("To install this app:\n1. Tap the Share icon\n2. Choose 'Add to Home Screen'");
-      };
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log("✅ Service Worker Registered"))
+        .catch(err => console.error("❌ SW Error", err));
     }
   </script>
 </body>
