@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0d6efd" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -78,10 +78,23 @@
       z-index: 10;
     }
 
-    #installBtn {
+    a {
+      color: #0d6efd;
+      text-decoration: none;
+    }
+
+    /* Floating Install FAB */
+    #installFab {
       position: fixed;
       bottom: 20px;
       right: 20px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 9999;
+    }
+
+    #installBtn {
       width: 56px;
       height: 56px;
       border-radius: 50%;
@@ -90,18 +103,17 @@
       font-size: 1.5rem;
       border: none;
       box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      display: none;
-      z-index: 9999;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    #installBtn:hover {
-      background-color: #0b5ed7;
     }
 
-    a {
-      color: #0d6efd;
-      text-decoration: none;
+    #installLabel {
+      background: #0d6efd;
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      font-size: 1rem;
+      white-space: nowrap;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -111,22 +123,16 @@
 
   <div id="welcome">
     <h1>Welcome to Halleluiah Prayer Tracker</h1>
-    <p>Track daily prayer minutes for yourself or your family. Log prayers, record reflections, and view progress over time.</p>
-
-    <p>We request limited access to your Google account for:</p>
+    <p>Track daily prayer minutes for yourself or your family. You can log prayers, record reflections, and view progress.</p>
+    <p>We request limited access to your Google account for the following reasons:</p>
     <ul style="text-align: left; display: inline-block;">
-      <li>Logging prayer times securely</li>
-      <li>Sending password reset emails</li>
+      <li>Log your prayer times securely</li>
+      <li>Send password reset emails if needed</li>
     </ul>
-
     <p><strong>Who is it for?</strong><br>
-      Individuals, families, and small prayer groups seeking to maintain a spiritual routine.</p>
-
+      Individuals, families, and small prayer groups.</p>
     <p>Your data is never shared.</p>
-    <p>
-      <a href="/privacy" target="_blank">Privacy Policy</a> |
-      <a href="/terms-of-service" target="_blank">Terms</a>
-    </p>
+    <p><a href="/privacy" target="_blank">Privacy Policy</a> | <a href="/terms-of-service" target="_blank">Terms</a></p>
   </div>
 
   <div id="appFrame">
@@ -134,7 +140,11 @@
     <iframe id="appIframe" src=""></iframe>
   </div>
 
-  <button id="installBtn" onclick="installApp()"> Install APP 📲</button>
+  <!-- Install App FAB -->
+  <div id="installFab">
+    <button id="installBtn" onclick="installApp()">📲</button>
+    <span id="installLabel">Install App</span>
+  </div>
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
@@ -174,7 +184,7 @@
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      document.getElementById("installBtn").style.display = "block";
+      document.getElementById("installFab").style.display = "flex";
     });
 
     function installApp() {
@@ -182,7 +192,7 @@
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then(() => {
           deferredPrompt = null;
-          document.getElementById("installBtn").style.display = "none";
+          document.getElementById("installFab").style.display = "none";
         });
       }
     }
