@@ -112,6 +112,10 @@
     <p><a href="/privacy" target="_blank">Privacy Policy</a> | <a href="/terms-of-service" target="_blank">Terms</a></p>
 
     <button id="installBtn" onclick="installApp()">📲 Install App</button>
+    <small style="color: gray;">
+  If you don’t see the install prompt, open the browser menu and select <b>“Add to Home Screen”</b>.
+</small>
+
   </div>
 
   <div id="appFrame">
@@ -165,7 +169,7 @@
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then(() => {
           deferredPrompt = null;
-          document.getElementById("installBtn").style.display = "none";
+        
         });
       }
     }
