@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone;
+  
+      if (isStandalone) {
+        // Hide the welcome section if installed
+        document.getElementById("welcome").style.display = "none";
+      }
+    });
+  </script>
 
 
   <meta charset="UTF-8" />
