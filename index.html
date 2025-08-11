@@ -142,22 +142,41 @@
     window.addEventListener('online', showOnline);
     window.addEventListener('offline', showOffline);
 
-    window.addEventListener('load', () => {
-      if (navigator.onLine) showOnline();
-      else showOffline();
+  window.addEventListener('load', () => {
+  if (navigator.onLine) showOnline();
+  else showOffline();
 
-      if (isStandalone) {
-        document.getElementById("welcome").style.display = "none";
-        document.getElementById("appFrame").style.display = "block";
-        const iframe = document.getElementById("appIframe");
-        iframe.src = SCRIPT_URL;
-        iframe.onload = () => {
-          document.getElementById("loadingOverlay").style.display = "none";
-        };
-      } else {
-        document.getElementById("welcome").style.display = "block";
-      }
-    });
+  const hasStoredUser = localStorage.getItem("storedUserEmail");
+
+  if (isStandalone || hasStoredUser) {
+    document.getElementById("welcome").style.display = "none";
+    document.getElementById("appFrame").style.display = "block";
+    const iframe = document.getElementById("appIframe");
+    iframe.src = SCRIPT_URL;
+    iframe.onload = () => {
+      document.getElementById("loadingOverlay").style.display = "none";
+    };
+  } else {
+    document.getElementById("welcome").style.display = "block";
+  }
+});
+
+    // window.addEventListener('load', () => {
+    //   if (navigator.onLine) showOnline();
+    //   else showOffline();
+
+    //   if (isStandalone) {
+    //     document.getElementById("welcome").style.display = "none";
+    //     document.getElementById("appFrame").style.display = "block";
+    //     const iframe = document.getElementById("appIframe");
+    //     iframe.src = SCRIPT_URL;
+    //     iframe.onload = () => {
+    //       document.getElementById("loadingOverlay").style.display = "none";
+    //     };
+    //   } else {
+    //     document.getElementById("welcome").style.display = "block";
+    //   }
+    // });
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
