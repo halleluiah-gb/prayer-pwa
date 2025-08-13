@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0d6efd" />
@@ -17,11 +16,9 @@
       padding: 0;
       height: 100%;
       width: 100%;
-      overflow: hidden;
       font-family: sans-serif;
       background: white;
     }
-
     #banner {
       height: 40px;
       line-height: 40px;
@@ -31,7 +28,6 @@
       color: white;
       background: #0d6efd;
     }
-
     #offlineBanner {
       display: none;
       background: #dc3545;
@@ -40,21 +36,17 @@
       padding: 0.5rem;
       font-weight: bold;
     }
-
     #welcome {
       padding: 1.5rem;
       text-align: center;
       height: calc(100% - 40px);
       box-sizing: border-box;
     }
-
     #installBtn {
       margin-top: 1.5rem;
       padding: 0.8rem 1.5rem;
       font-size: 1rem;
-   
     }
-
     #appFrame {
       height: calc(100% - 40px);
       width: 100%;
@@ -62,20 +54,15 @@
       display: none;
       position: relative;
     }
-
     iframe {
       border: none;
       height: 100%;
       width: 100%;
       display: block;
     }
-
     #loadingOverlay {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       background: rgba(255, 255, 255, 0.85);
       display: flex;
       align-items: center;
@@ -85,128 +72,92 @@
       color: #0d6efd;
       z-index: 10;
     }
-
     a {
       color: #0d6efd;
       text-decoration: none;
+    }
+    #installHelp {
+      display: none;
+      color: gray;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
   <noscript>Your browser does not support JavaScript. This app requires JavaScript to run.</noscript>
-<small id="installHelp" style="display: none; color: gray; margin-top: 1rem;">
-  If you don't see the install button, open the browser menu and choose <b>"Add to Home Screen"</b> manually.
-</small>
 
   <div id="banner">🙏 Halleluiah</div>
   <div id="offlineBanner">❌ You are currently offline</div>
 
   <div id="welcome">
     <h1>Welcome to Halleluiah Prayer Tracker</h1>
-    <p>Halleluiah Prayer Tracker is a spiritual journal app that helps you track daily prayer minutes for yourself or your family. You can log prayers, record reflections, and view progress over time.</p>
-
-   
-    
-  <p><strong>Who is it for?</strong><br>
-    Anyone seeking to maintain a spiritual routine, including individuals, families, and small prayer groups.</p>
-
-    <p><a href="/privacy" target="_blank">Privacy Policy</a> | <a href="/terms-of-service" target="_blank">Terms</a></p>
-
-    <button id="installBtn" onclick="installApp()">📲 Install App</button>
-    <small style="color: gray;">
-  If you don’t see the install prompt, open the browser menu and select <b>“Add to Home Screen”</b>.
-</small>
-
+    <p>Track daily prayer minutes for yourself or your family. Log prayers, record reflections, and view progress over time.</p>
+    <p><strong>Who is it for?</strong><br>Individuals, families, and small prayer groups.</p>
+    <p>
+      <a href="/privacy" target="_blank">Privacy Policy</a> |
+      <a href="/terms-of-service" target="_blank">Terms</a>
+    </p>
+    <button id="installBtn">📲 Install App</button>
+    <small>If you don’t see the install prompt, open the browser menu and select <b>“Add to Home Screen”</b>.</small>
+    <small id="installHelp">If you don't see the install button, open the browser menu and choose <b>"Add to Home Screen"</b> manually.</small>
   </div>
 
   <div id="appFrame">
     <div id="loadingOverlay">⏳ Loading App...</div>
-    <iframe id="appIframe" src=""></iframe>
+    <iframe id="appIframe" src="" loading="eager"></iframe>
   </div>
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     let deferredPrompt = null;
 
-    const showOnline = () => {
-      document.getElementById('offlineBanner').style.display = 'none';
-      document.getElementById('banner').style.background = '#0d6efd';
+    // Online/offline updates
+    const updateOnlineStatus = () => {
+      const online = navigator.onLine;
+      document.getElementById('offlineBanner').style.display = online ? 'none' : 'block';
+      document.getElementById('banner').style.background = online ? '#0d6efd' : '#dc3545';
     };
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
 
-    const showOffline = () => {
-      document.getElementById('offlineBanner').style.display = 'block';
-      document.getElementById('banner').style.background = '#dc3545';
-    };
+    document.addEventListener('DOMContentLoaded', () => {
+      updateOnlineStatus();
 
-    window.addEventListener('online', showOnline);
-    window.addEventListener('offline', showOffline);
-
-  window.addEventListener('load', () => {
-  if (navigator.onLine) showOnline();
-  else showOffline();
-
-  const hasStoredUser = localStorage.getItem("storedUserEmail");
-
-  if (isStandalone || hasStoredUser) {
-    document.getElementById("welcome").style.display = "none";
-    document.getElementById("appFrame").style.display = "block";
-    const iframe = document.getElementById("appIframe");
-    iframe.src = SCRIPT_URL;
-    iframe.onload = () => {
-      document.getElementById("loadingOverlay").style.display = "none";
-    };
-  } else {
-    document.getElementById("welcome").style.display = "block";
-  }
-});
-
-    // window.addEventListener('load', () => {
-    //   if (navigator.onLine) showOnline();
-    //   else showOffline();
-
-    //   if (isStandalone) {
-    //     document.getElementById("welcome").style.display = "none";
-    //     document.getElementById("appFrame").style.display = "block";
-    //     const iframe = document.getElementById("appIframe");
-    //     iframe.src = SCRIPT_URL;
-    //     iframe.onload = () => {
-    //       document.getElementById("loadingOverlay").style.display = "none";
-    //     };
-    //   } else {
-    //     document.getElementById("welcome").style.display = "block";
-    //   }
-    // });
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById("installBtn").style.display = "inline-block";
-    });
-
-    function installApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-          deferredPrompt = null;
-        
-        });
+      const hasStoredUser = localStorage.getItem("storedUserEmail");
+      if (isStandalone || hasStoredUser) {
+        // Directly show app
+        document.getElementById("welcome").style.display = "none";
+        const appFrame = document.getElementById("appFrame");
+        appFrame.style.display = "block";
+        const iframe = document.getElementById("appIframe");
+        iframe.src = SCRIPT_URL;
+        iframe.onload = () => document.getElementById("loadingOverlay").style.display = "none";
       }
-    }
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log("✅ Service Worker Registered"))
-        .catch(err => console.error("❌ SW Error", err));
-    }
-
-
-    window.addEventListener('load', () => {
-        if (!('onbeforeinstallprompt' in window)) {
-          document.getElementById("installHelp").style.display = "block";
-        }
+      // PWA install prompt
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById("installBtn").style.display = "inline-block";
       });
 
+      document.getElementById("installBtn").onclick = () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.finally(() => deferredPrompt = null);
+        }
+      };
+
+      if (!('onbeforeinstallprompt' in window)) {
+        document.getElementById("installHelp").style.display = "block";
+      }
+    });
+
+    // Register service worker ASAP
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.error("SW Error", err));
+    }
   </script>
 </body>
 </html>
