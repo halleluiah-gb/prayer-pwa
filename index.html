@@ -115,6 +115,15 @@
   </div>
 
   <script>
+    // Show "Open in Chrome" only if on Android and not already in Chrome
+const ua = navigator.userAgent.toLowerCase();
+const isAndroid = ua.includes("android");
+const isChrome = ua.includes("chrome") && !ua.includes("edg");
+
+if (isAndroid && !isChrome) {
+  document.getElementById("openInChromeContainer").style.display = "block";
+}
+
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     let deferredPrompt = null;
