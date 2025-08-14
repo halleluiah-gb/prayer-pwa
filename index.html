@@ -114,66 +114,104 @@
     <iframe id="appIframe" src="" loading="eager"></iframe>
   </div>
 
-  <script>
-    // Show "Open in Chrome" only if on Android and not already in Chrome
-const ua = navigator.userAgent.toLowerCase();
-const isAndroid = ua.includes("android");
-const isChrome = ua.includes("chrome") && !ua.includes("edg");
+<style>
+  /* Chrome Recommendation Banner */
+  .chrome-banner {
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 
-if (isAndroid && !isChrome) {
-  document.getElementById("openInChromeContainer").style.display = "block";
-}
+    /* Start hidden & slide in */
+    transform: translateY(-150%);
+    opacity: 0;
+    animation: slideDown 0.6s ease forwards;
+  }
 
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-    let deferredPrompt = null;
+  @keyframes slideDown {
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+</style>
 
-    // Online/offline updates
-    const updateOnlineStatus = () => {
-      const online = navigator.onLine;
-      document.getElementById('offlineBanner').style.display = online ? 'none' : 'block';
-      document.getElementById('banner').style.background = online ? '#0d6efd' : '#dc3545';
-    };
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  let deferredPrompt = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      updateOnlineStatus();
+  function isAndroid() {
+    return /android/i.test(navigator.userAgent);
+  }
+  function isChrome() {
+    return /chrome/i.test(navigator.userAgent) && !/edg/i.test(navigator.userAgent) && !/firefox/i.test(navigator.userAgent);
+  }
 
-      const hasStoredUser = localStorage.getItem("storedUserEmail");
-      if (isStandalone || hasStoredUser) {
-        // Directly show app
-        document.getElementById("welcome").style.display = "none";
-        const appFrame = document.getElementById("appFrame");
-        appFrame.style.display = "block";
-        const iframe = document.getElementById("appIframe");
-        iframe.src = SCRIPT_URL;
-        iframe.onload = () => document.getElementById("loadingOverlay").style.display = "none";
-      }
+  const updateOnlineStatus = () => {
+    const online = navigator.onLine;
+    document.getElementById('offlineBanner').style.display = online ? 'none' : 'block';
+    document.getElementById('banner').style.background = online ? '#0d6efd' : '#dc3545';
+  };
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
 
-      // PWA install prompt
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById("installBtn").style.display = "inline-block";
-      });
+  document.addEventListener('DOMContentLoaded', () => {
+    updateOnlineStatus();
 
-      document.getElementById("installBtn").onclick = () => {
-        if (deferredPrompt) {
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.finally(() => deferredPrompt = null);
-        }
-      };
+    // Show Chrome recommendation if Android but not Chrome
+    if (isAndroid() && !isChrome()) {
+      const chromeMsg = document.createElement('div');
+      chromeMsg.className = 'chrome-banner';
+      chromeMsg.innerHTML = `
+        <strong>📢 Best viewed in Chrome</strong><br>
+        <a href="intent://yoursite.com#Intent;scheme=https;package=com.android.chrome;end" style="color:#0d6efd;text-decoration:underline;">Open in Chrome</a><br><br>
+        <small><b>To set Chrome as default:</b><br>
+        1. Open <i>Settings</i> → <i>Apps</i> → <i>Default apps</i>.<br>
+        2. Tap <i>Browser app</i>.<br>
+        3. Select <i>Chrome</i>.</small>
+      `;
+      document.getElementById('welcome').prepend(chromeMsg);
+    }
 
-      if (!('onbeforeinstallprompt' in window)) {
-        document.getElementById("installHelp").style.display = "block";
-      }
+    const hasStoredUser = localStorage.getItem("storedUserEmail");
+    if (isStandalone || hasStoredUser) {
+      document.getElementById("welcome").style.display = "none";
+      const appFrame = document.getElementById("appFrame");
+      appFrame.style.display = "block";
+      const iframe = document.getElementById("appIframe");
+      iframe.src = SCRIPT_URL;
+      iframe.onload = () => document.getElementById("loadingOverlay").style.display = "none";
+    }
+
+    // Install prompt handling
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById("installBtn").style.display = "inline-block";
     });
 
-    // Register service worker ASAP
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(err => console.error("SW Error", err));
+    document.getElementById("installBtn").onclick = () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.finally(() => deferredPrompt = null);
+      }
+    };
+
+    if (!('onbeforeinstallprompt' in window)) {
+      document.getElementById("installHelp").style.display = "block";
     }
-  </script>
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(err => console.error("SW Error", err));
+  }
+</script>
+
 </body>
 </html>
