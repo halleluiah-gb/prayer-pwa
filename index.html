@@ -81,6 +81,28 @@
       color: gray;
       margin-top: 1rem;
     }
+
+    /* Chrome Recommendation Banner */
+    .chrome-banner {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      color: #856404;
+      padding: 1rem;
+      max-width: 500px;
+      margin: 1rem auto;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transform: translateY(-150%);
+      opacity: 0;
+      animation: slideDown 0.6s ease forwards;
+    }
+    @keyframes slideDown {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -97,14 +119,16 @@
       <a href="/privacy" target="_blank">Privacy Policy</a> |
       <a href="/terms-of-service" target="_blank">Terms</a>
     </p>
+
     <button id="installBtn">📲 Install App</button>
-      <p id="openInChromeContainer" style="display:none; margin-top:1rem;">
-    <a id="openInChromeLink"
-       href="intent://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec#Intent;scheme=https;package=com.android.chrome;end"
-       style="color: #0d6efd; font-weight: bold;">
-       🌐 Open in Chrome
-    </a>
-  </p>
+    <p id="openInChromeContainer" style="display:none; margin-top:1rem;">
+      <a id="openInChromeLink"
+        href="intent://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec#Intent;scheme=https;package=com.android.chrome;end"
+        style="color: #0d6efd; font-weight: bold;">
+        🌐 Open in Chrome
+      </a>
+    </p>
+
     <small>If you don’t see the install prompt, open the browser menu and select <b>“Add to Home Screen”</b>.</small>
     <small id="installHelp">If you don't see the install button, open the browser menu and choose <b>"Add to Home Screen"</b> manually.</small>
   </div>
@@ -113,33 +137,6 @@
     <div id="loadingOverlay">⏳ Loading App...</div>
     <iframe id="appIframe" src="" loading="eager"></iframe>
   </div>
-
-<style>
-  /* Chrome Recommendation Banner */
-  .chrome-banner {
-    background: #fff3cd;
-    border: 1px solid #ffeeba;
-    color: #856404;
-    padding: 1rem;
-    max-width: 500px;
-    margin: 0 auto;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-
-    /* Start hidden & slide in */
-    transform: translateY(-150%);
-    opacity: 0;
-    animation: slideDown 0.6s ease forwards;
-  }
-
-  @keyframes slideDown {
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-</style>
 
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec";
@@ -170,7 +167,7 @@
       chromeMsg.className = 'chrome-banner';
       chromeMsg.innerHTML = `
         <strong>📢 Best viewed in Chrome</strong><br>
-        <a href="intent://yoursite.com#Intent;scheme=https;package=com.android.chrome;end" style="color:#0d6efd;text-decoration:underline;">Open in Chrome</a><br><br>
+        <a href="intent://script.google.com/macros/s/AKfycbwp0od-C3Pun0Mj7b1a_DnX6DpQTg7fNKG1vx8eZwou7r2h2maV23lzOGLV5d5iuIgE/exec#Intent;scheme=https;package=com.android.chrome;end" style="color:#0d6efd;text-decoration:underline;">👉 Open in Chrome</a><br><br>
         <small><b>To set Chrome as default:</b><br>
         1. Open <i>Settings</i> → <i>Apps</i> → <i>Default apps</i>.<br>
         2. Tap <i>Browser app</i>.<br>
@@ -179,6 +176,7 @@
       document.getElementById('welcome').prepend(chromeMsg);
     }
 
+    // Skip welcome if installed or returning user
     const hasStoredUser = localStorage.getItem("storedUserEmail");
     if (isStandalone || hasStoredUser) {
       document.getElementById("welcome").style.display = "none";
@@ -212,6 +210,5 @@
     navigator.serviceWorker.register('/sw.js').catch(err => console.error("SW Error", err));
   }
 </script>
-
 </body>
 </html>
