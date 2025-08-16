@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prayer-cache-v2'; // ← Increment version to force update
+const CACHE_NAME = 'prayer-cache-v3'; // bump version to refresh
 const urlsToPreCache = [
   '/',
   '/index.html',
@@ -7,15 +7,18 @@ const urlsToPreCache = [
   '/icon-512.png'
 ];
 
-// Precache essential assets during install
+// 👉 Add your Google Script App URL here
+const APP_URL = "https://script.google.com/macros/s/AKfycbxYourScriptID/exec";
+
+// Precache essential assets
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToPreCache))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll([...urlsToPreCache, APP_URL]))
   );
 });
 
-// Remove old caches during activate
+// Cleanup old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) =>
@@ -31,19 +34,36 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Serve from cache first, fetch and update cache in background
+// Cache-first strategy with background update
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  // If request is for the Google Script iframe → cache it
+  if (event.request.url.startsWith(APP_URL)) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        const fetchPromise = fetch(event.request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.ok) {
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, networkResponse.clone());
+              });
+            }
+            return networkResponse;
+          })
+          .catch(() => cachedResponse);
+        return cachedResponse || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // Default: cache-first for everything else
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
         .then((networkResponse) => {
-          if (
-            networkResponse &&
-            networkResponse.status === 200 &&
-            networkResponse.type === 'basic'
-          ) {
+          if (networkResponse && networkResponse.ok && networkResponse.type === 'basic') {
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, networkResponse.clone());
             });
@@ -59,7 +79,6 @@ self.addEventListener('fetch', (event) => {
             );
           }
         });
-
       return cachedResponse || fetchPromise;
     })
   );
