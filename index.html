@@ -11,26 +11,49 @@
   <link rel="icon" href="/icon-192.png" />
   <title>Prayer Tracker - Halleluiah</title>
 
-  <!-- Firebase App -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging.js"></script>
-  <script>
-  // Replace with your Firebase config
+<!-- Firebase App (Core SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
+
+<script>
+  // Your Firebase config
   const firebaseConfig = {
-        apiKey: "AIzaSyCIrp6XdejjP2SX6C2YNWl54HD99hgDZpY",
-        authDomain: "halleluiah-efd3d.firebaseapp.com",
-        projectId: "halleluiah-efd3d",
-        storageBucket: "halleluiah-efd3d.firebasestorage.app",
-        messagingSenderId: "1000881270210",
-        appId: "1:1000881270210:web:687252e435b9ef86ddba5b",
-        measurementId: "G-5K2160S951"
+    apiKey: "AIzaSyCIrp6XdejjP2SX6C2YNWl54HD99hgDZpY",
+    authDomain: "halleluiah-efd3d.firebaseapp.com",
+    projectId: "halleluiah-efd3d",
+    storageBucket: "halleluiah-efd3d.appspot.com",
+    messagingSenderId: "1000881270210",
+    appId: "1:1000881270210:web:687252e435b9ef86ddba5b",
+    measurementId: "G-5K2160S951"
   };
 
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
 
   const messaging = firebase.messaging();
+
+  // Request notification permission
+  async function requestPermission() {
+    try {
+      const token = await messaging.getToken({
+        vapidKey: "BOFxB2fLiAEGSzpcRGkHtoYusJxRV8mNm98DngS0cOTNkAkus1mNV8URJz-4CndNM0MFX2SvVbcfg5ehI9Mv8VA"
+      });
+      console.log("FCM Token:", token);
+      // 👉 Save this token to your backend (AppScript or Firebase DB)
+    } catch (err) {
+      console.error("Permission denied or error:", err);
+    }
+  }
+
+  requestPermission();
+
+  // Handle foreground messages
+  messaging.onMessage((payload) => {
+    console.log("Message received: ", payload);
+    alert(payload.notification.title + ": " + payload.notification.body);
+  });
 </script>
+
   <style>
     html, body {
       margin: 0;
