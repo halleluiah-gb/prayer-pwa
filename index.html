@@ -38,8 +38,11 @@
       const token = await messaging.getToken({
         vapidKey: "BOFxB2fLiAEGSzpcRGkHtoYusJxRV8mNm98DngS0cOTNkAkus1mNV8URJz-4CndNM0MFX2SvVbcfg5ehI9Mv8VA"
       });
-      console.log("FCM Token:", token);
-      // 👉 Save this token to your backend (AppScript or Firebase DB)
+      if (token) {
+      console.log("✅ FCM Token:", token);
+    } else {
+      console.warn("⚠️ No registration token available. Request permission to generate one.");
+    }
     } catch (err) {
       console.error("Permission denied or error:", err);
     }
