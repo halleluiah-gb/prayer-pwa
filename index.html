@@ -6,6 +6,18 @@
   <meta name="theme-color" content="#0d6efd" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  
+  <!-- Enhanced PWA Meta Tags for Camera -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Halleluiah">
+  <meta name="application-name" content="Halleluiah">
+  <meta name="msapplication-TileColor" content="#0d6efd">
+  <meta name="msapplication-tap-highlight" content="no">
+  
+  <!-- Camera Permissions Meta -->
+  <meta name="camera" content="allow">
+  <meta name="microphone" content="deny">
+  
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
   <link rel="icon" href="/icon-192.png" />
@@ -63,8 +75,9 @@
       padding: 0;
       height: 100%;
       width: 100%;
-      font-family: sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: white;
+      -webkit-tap-highlight-color: transparent;
     }
     #banner {
       height: 40px;
@@ -74,6 +87,8 @@
       font-size: 1rem;
       color: white;
       background: #0d6efd;
+      -webkit-user-select: none;
+      user-select: none;
     }
     #offlineBanner {
       display: none;
@@ -88,11 +103,24 @@
       text-align: center;
       height: calc(100% - 40px);
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
     #installBtn {
       margin-top: 1.5rem;
       padding: 0.8rem 1.5rem;
       font-size: 1rem;
+      background: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #installBtn:hover {
+      background: #0b5ed7;
     }
     #appFrame {
       height: calc(100% - 40px);
@@ -110,14 +138,28 @@
     #loadingOverlay {
       position: absolute;
       inset: 0;
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.95);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
       font-weight: bold;
       color: #0d6efd;
       z-index: 10;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0d6efd;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
     a {
       color: #0d6efd;
@@ -127,6 +169,8 @@
       display: none;
       color: gray;
       margin-top: 1rem;
+      text-align: center;
+      max-width: 300px;
     }
 
     /* Chrome Recommendation Banner */
@@ -150,6 +194,29 @@
         opacity: 1;
       }
     }
+
+    /* Camera Permission Helper */
+    .camera-help {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      max-width: 500px;
+    }
+    .camera-help h4 {
+      margin: 0 0 0.5rem 0;
+      color: #0c5460;
+    }
+    .camera-help ul {
+      text-align: left;
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+    .camera-help li {
+      margin: 0.25rem 0;
+    }
   </style>
 </head>
 <body>
@@ -162,6 +229,19 @@
     <h1>Welcome to Halleluiah Prayer Tracker</h1>
     <p>Track daily prayer minutes for yourself or your family. Log prayers, record reflections, and view progress over time.</p>
     <p><strong>Who is it for?</strong><br>Individuals, families, and small prayer groups.</p>
+
+    <!-- Camera Help Section -->
+    <div class="camera-help">
+      <h4>📸 Camera Access Note</h4>
+      <p>This app includes bill capture features. For best camera performance:</p>
+      <ul>
+        <li>✅ Install as PWA (recommended)</li>
+        <li>✅ Use Chrome or Safari</li>
+        <li>✅ Allow camera permissions when prompted</li>
+        <li>✅ Ensure good lighting for bill photos</li>
+      </ul>
+    </div>
+
     <p>
       <a href="/privacy" target="_blank">Privacy Policy</a> |
       <a href="/terms-of-service" target="_blank">Terms</a>
@@ -176,13 +256,17 @@
       </a>
     </p>
 
-    <small>If you don’t see the install prompt, open the browser menu and select <b>“Add to Home Screen”</b>.</small>
+    <small>If you don't see the install prompt, open the browser menu and select <b>"Add to Home Screen"</b>.</small>
     <small id="installHelp">If you don't see the install button, open the browser menu and choose <b>"Add to Home Screen"</b> manually.</small>
   </div>
 
   <div id="appFrame">
-    <div id="loadingOverlay">⏳ Loading App...</div>
-    <iframe id="appIframe" src="" loading="eager"></iframe>
+    <div id="loadingOverlay">
+      <div class="spinner"></div>
+      <div>Loading Prayer Tracker...</div>
+      <small style="margin-top: 1rem; color: #666;">Camera features work best when installed as PWA</small>
+    </div>
+    <iframe id="appIframe" src="" loading="eager" allow="camera; fullscreen"></iframe>
   </div>
 
 <script>
@@ -193,8 +277,35 @@
   function isAndroid() {
     return /android/i.test(navigator.userAgent);
   }
+  
+  function isIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent);
+  }
+  
   function isChrome() {
     return /chrome/i.test(navigator.userAgent) && !/edg/i.test(navigator.userAgent) && !/firefox/i.test(navigator.userAgent);
+  }
+
+  function isSecureContext() {
+    return window.isSecureContext || 
+           window.location.protocol === 'https:' || 
+           window.location.hostname === 'localhost' ||
+           window.location.hostname === '127.0.0.1';
+  }
+
+  // Check camera support
+  function checkCameraSupport() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.warn('Camera API not supported');
+      return false;
+    }
+    
+    if (!isSecureContext()) {
+      console.warn('Camera requires secure context');
+      return false;
+    }
+    
+    return true;
   }
 
   const updateOnlineStatus = () => {
@@ -202,11 +313,31 @@
     document.getElementById('offlineBanner').style.display = online ? 'none' : 'block';
     document.getElementById('banner').style.background = online ? '#0d6efd' : '#dc3545';
   };
+  
   window.addEventListener('online', updateOnlineStatus);
   window.addEventListener('offline', updateOnlineStatus);
 
   document.addEventListener('DOMContentLoaded', () => {
     updateOnlineStatus();
+
+    // Show camera support status
+    const cameraSupported = checkCameraSupport();
+    console.log('Camera supported:', cameraSupported);
+    
+    if (!cameraSupported && isSecureContext()) {
+      const cameraNote = document.createElement('div');
+      cameraNote.className = 'camera-help';
+      cameraNote.innerHTML = `
+        <h4>⚠️ Camera Note</h4>
+        <p>Camera features may not work in this browser. For best results:</p>
+        <ul>
+          <li>Install the PWA version</li>
+          <li>Use Chrome or Safari</li>
+          <li>Ensure HTTPS connection</li>
+        </ul>
+      `;
+      document.getElementById('welcome').querySelector('.camera-help').after(cameraNote);
+    }
 
     // Show Chrome recommendation if Android but not Chrome
     if (isAndroid() && !isChrome()) {
@@ -231,7 +362,10 @@
       appFrame.style.display = "block";
       const iframe = document.getElementById("appIframe");
       iframe.src = SCRIPT_URL;
-      iframe.onload = () => document.getElementById("loadingOverlay").style.display = "none";
+      iframe.onload = () => {
+        document.getElementById("loadingOverlay").style.display = "none";
+        console.log('App loaded in PWA mode');
+      };
     }
 
     // Install prompt handling
@@ -239,23 +373,61 @@
       e.preventDefault();
       deferredPrompt = e;
       document.getElementById("installBtn").style.display = "inline-block";
+      
+      // Show enhanced install message
+      document.querySelector('#installHelp').innerHTML = `
+        <strong>💡 For best camera performance:</strong><br>
+        Install this app to your home screen. Camera features work best in installed PWA mode.
+      `;
+      document.getElementById("installHelp").style.display = "block";
     });
 
-    document.getElementById("installBtn").onclick = () => {
+    document.getElementById("installBtn").onclick = async () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.finally(() => deferredPrompt = null);
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('PWA installed successfully');
+          // Redirect to app immediately after installation
+          document.getElementById("welcome").style.display = "none";
+          document.getElementById("appFrame").style.display = "block";
+          document.getElementById("appIframe").src = SCRIPT_URL;
+        }
+        deferredPrompt = null;
       }
     };
 
     if (!('onbeforeinstallprompt' in window)) {
       document.getElementById("installHelp").style.display = "block";
+      document.getElementById("installHelp").innerHTML = `
+        <strong>📱 To install this app:</strong><br>
+        1. Open browser menu (⋮)<br>
+        2. Tap "Add to Home Screen"<br>
+        3. Launch from home screen for best camera performance
+      `;
     }
   });
 
+  // Enhanced service worker for camera support
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.error("SW Error", err));
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        console.log('SW registered: ', registration);
+      })
+      .catch(err => console.error("SW Error", err));
   }
+
+  // Camera permission helper
+  window.requestCameraPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop());
+      return true;
+    } catch (error) {
+      console.error('Camera permission denied:', error);
+      return false;
+    }
+  };
 </script>
 </body>
 </html>
